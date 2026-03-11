@@ -55,6 +55,56 @@
     {% block content %}{% endblock %}
   </main>
 
+  <footer class="footer-shell mt-5">
+    <div class="container py-5">
+      <div class="row g-4 footer-top">
+        <div class="col-lg-3">
+          <div class="footer-logo">
+            <div class="footer-brand">Che Bup</div>
+            <div class="footer-tagline">Market & Trace</div>
+          </div>
+          <div class="footer-slogan">Tra tuoi - do tuoi - giao nhanh.</div>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div class="footer-title">Weekly themes</div>
+          <ul class="footer-links">
+            <li><a class="footer-link" href="{% url 'shop:home' %}">San pham noi bat</a></li>
+            <li><a class="footer-link" href="{% url 'shop:cart' %}">Gio hang</a></li>
+            <li><a class="footer-link" href="{% url 'shop:orders' %}">Don hang</a></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div class="footer-title">Services</div>
+          <ul class="footer-links">
+            <li><a class="footer-link" href="{% url 'shop:chat' %}">Chat AI</a></li>
+            <li><span class="footer-text">Truy xuat QR</span></li>
+            <li><span class="footer-text">Giao trong ngay</span></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-2">
+          <div class="footer-title">Showcase</div>
+          <ul class="footer-links">
+            <li><a class="footer-link" href="{% url 'shop:account' %}">Dia chi giao</a></li>
+            <li><span class="footer-text">Khu nguon</span></li>
+            <li><span class="footer-text">Xuong che</span></li>
+          </ul>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="footer-title">About us</div>
+          <ul class="footer-links">
+            <li><span class="footer-text">Hotline: 0909 123 456</span></li>
+            <li><span class="footer-text">Email: support@chebup.vn</span></li>
+            <li><span class="footer-text">8:00 - 21:30</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-divider"></div>
+      <div class="footer-bottom">
+        <div class="footer-copy">Copyright 2026 Che Bup. All rights reserved.</div>
+      </div>
+    </div>
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   {% block scripts %}{% endblock %}
 </body>

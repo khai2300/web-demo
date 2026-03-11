@@ -54,11 +54,11 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/shop/js/chat.js"></script>
 <script>
   window.ChatConfig = {
     endpoint: "{% url 'shop:chat_api' %}",
     resetEndpoint: "{% url 'shop:chat_reset' %}"
   };
 </script>
+<script src="/static/shop/js/chat.js"></script>
 {% endblock %}

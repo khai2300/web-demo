@@ -227,6 +227,92 @@ body {
   object-fit: cover;
 }
 
+.footer-shell {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(79, 138, 98, 0.25), transparent 42%),
+    linear-gradient(180deg, #141716 0%, #0e1010 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #d7e2da;
+}
+
+.footer-logo {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.footer-brand {
+  font-family: "Fraunces", serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f1f5f2;
+  letter-spacing: 0.4px;
+}
+
+.footer-tagline {
+  color: #9bb0a0;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footer-slogan {
+  color: #b8c6bd;
+  margin-top: 0.9rem;
+  max-width: 30ch;
+}
+
+.footer-title {
+  font-weight: 700;
+  color: #f1f5f2;
+  margin-bottom: 0.8rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.footer-link {
+  color: #b7c6bc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer-link:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.footer-text {
+  color: #9fb2a3;
+}
+
+.footer-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 2.2rem 0 1.6rem;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  text-align: center;
+}
+
+.footer-copy {
+  color: #9fb2a3;
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
+}
+
 @media (max-width: 992px) {
   .hero-spot {
     border-radius: 18px;

@@ -763,7 +763,12 @@ def trace_order(request, token):
 def chat_view(request):
     session_obj = _get_or_create_chat_session(request.user)
     history = session_obj.messages.exclude(role=ChatMessage.ROLE_SYSTEM)
-    chat_mode = "llm" if os.environ.get("OPENAI_API_KEY", "").strip() else "fallback"
+    has_llm = bool(
+        os.environ.get("GEMINI_API_KEY", "").strip()
+        or os.environ.get("GOOGLE_API_KEY", "").strip()
+        or os.environ.get("OPENAI_API_KEY", "").strip()
+    )
+    chat_mode = "llm" if has_llm else "fallback"
     return render(
         request,
         "shop/chat.html",

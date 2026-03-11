@@ -14,7 +14,8 @@ SYSTEM_PROMPT = (
     "Ban la tro ly ban che bup trong he thong ecommerce. "
     "Tra loi bang tieng Viet khong dau, than thien, ngan gon, khong may moc. "
     "Neu thong tin lien quan den don hang cua user da co trong context thi uu tien su dung dung du lieu do. "
-    "Khong tu tao chinh sach khong co trong context."
+    "Khong tu tao chinh sach khong co trong context. "
+    "Neu user hoi ve san pham/tra, uu tien de xuat san pham tu he thong neu co."
 )
 
 
@@ -78,6 +79,26 @@ def _recommend_products(user_message, limit=3):
     if selected:
         return selected
     return list(query.order_by("-stock", "price")[:limit])
+
+
+def _looks_like_product_query(message):
+    text = (message or "").lower()
+    keywords = ["goi y", "de xuat", "san pham", "che", "tra", "nen mua", "mua gi"]
+    return any(word in text for word in keywords)
+
+
+def _build_product_suggestions(message, limit=3):
+    if not _looks_like_product_query(message):
+        return [], []
+    products = _recommend_products(message, limit=limit)
+    lines = []
+    for product in products:
+        desc = (product.short_description or "").strip()
+        desc_text = f" - {desc}" if desc else ""
+        lines.append(
+            f"- {product.name} ({_format_money(product.price)}){desc_text} | /product/{product.id}/"
+        )
+    return products, lines
 
 
 def _build_user_context(user):
@@ -185,8 +206,18 @@ def _rule_based_reply(user, user_message):
     if any(word in message for word in ["goi y", "che", "tra", "san pham", "nen mua"]):
         products = _recommend_products(message, limit=3)
         if products:
-            items = "; ".join(f"{p.name} - {_format_money(p.price)}" for p in products)
-            return f"Minh goi y ban: {items}. Neu can minh loc theo tam gia cu the."
+            lines = []
+            for product in products:
+                desc = (product.short_description or "").strip()
+                desc_text = f" - {desc}" if desc else ""
+                lines.append(
+                    f"- {product.name} ({_format_money(product.price)}){desc_text} | /product/{product.id}/"
+                )
+            return (
+                "Minh goi y ban:\n"
+                + "\n".join(lines)
+                + "\nNeu can minh loc theo tam gia cu the."
+            )
         return "Kho san pham dang cap nhat, ban thu lai sau it phut."
 
     if any(word in message for word in ["cam on", "thanks", "thank"]):
@@ -257,17 +288,97 @@ def _call_openai(messages):
         return None, "parse_error"
 
 
+def _call_gemini(system_text, conversation_messages, user_message):
+    api_key = os.environ.get("GEMINI_API_KEY", "").strip() or os.environ.get("GOOGLE_API_KEY", "").strip()
+    if not api_key:
+        return None, "missing_api_key"
+
+    model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash").strip()
+    endpoint = os.environ.get(
+        "GEMINI_ENDPOINT",
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+    ).strip()
+    timeout = int(os.environ.get("GEMINI_TIMEOUT", "25"))
+    temperature = float(os.environ.get("GEMINI_TEMPERATURE", "0.6"))
+    max_tokens_raw = os.environ.get("GEMINI_MAX_TOKENS", "").strip()
+
+    contents = [{"role": "user", "parts": [{"text": system_text}]}]
+    for item in conversation_messages[-12:]:
+        role = "user" if item["role"] == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": item["content"]}]})
+    contents.append({"role": "user", "parts": [{"text": user_message}]})
+
+    payload = {
+        "contents": contents,
+        "generationConfig": {"temperature": temperature},
+    }
+    if max_tokens_raw:
+        try:
+            payload["generationConfig"]["maxOutputTokens"] = int(max_tokens_raw)
+        except ValueError:
+            pass
+
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        endpoint,
+        data=data,
+        headers={
+            "Content-Type": "application/json",
+            "x-goog-api-key": api_key,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            raw = response.read().decode("utf-8")
+    except urllib.error.HTTPError as exc:
+        return None, f"http_{exc.code}"
+    except urllib.error.URLError:
+        return None, "network_error"
+    except TimeoutError:
+        return None, "timeout"
+    except Exception:
+        return None, "unknown_error"
+
+    try:
+        parsed = json.loads(raw)
+        candidates = parsed.get("candidates", [])
+        if not candidates:
+            return None, "empty_response"
+        parts = candidates[0].get("content", {}).get("parts", [])
+        text = "".join(part.get("text", "") for part in parts if isinstance(part, dict))
+        if not text:
+            return None, "empty_response"
+        return text.strip(), "llm_gemini"
+    except Exception:
+        return None, "parse_error"
+
+
 def generate_chat_reply(user, conversation_messages, user_message):
     context_text = _build_user_context(user)
+    products, product_lines = _build_product_suggestions(user_message, limit=3)
 
-    llm_messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-    llm_messages.append({"role": "system", "content": f"Context user:\n{context_text}"})
-    for item in conversation_messages[-12:]:
-        llm_messages.append({"role": item["role"], "content": item["content"]})
-    llm_messages.append({"role": "user", "content": user_message})
+    system_text = f"{SYSTEM_PROMPT}\nContext user:\n{context_text}"
+    if product_lines:
+        system_text += "\nGoi y san pham tu he thong:\n" + "\n".join(product_lines)
 
-    llm_reply, mode = _call_openai(llm_messages)
+    has_gemini = bool(
+        os.environ.get("GEMINI_API_KEY", "").strip() or os.environ.get("GOOGLE_API_KEY", "").strip()
+    )
+    if has_gemini:
+        llm_reply, mode = _call_gemini(system_text, conversation_messages, user_message)
+    else:
+        llm_messages = [{"role": "system", "content": system_text}]
+        for item in conversation_messages[-12:]:
+            llm_messages.append({"role": item["role"], "content": item["content"]})
+        llm_messages.append({"role": "user", "content": user_message})
+        llm_reply, mode = _call_openai(llm_messages)
     if llm_reply:
+        if product_lines and _looks_like_product_query(user_message):
+            reply_lower = llm_reply.lower()
+            if not any(product.name.lower() in reply_lower for product in products):
+                llm_reply = llm_reply + "\n\nGoi y san pham tu he thong:\n" + "\n".join(product_lines)
         return llm_reply, mode
 
     fallback = _rule_based_reply(user, user_message)
