@@ -25,6 +25,10 @@
                   <button class="btn btn-outline-success btn-sm">Dat mac dinh</button>
                 </form>
               {% endif %}
+              <form method="post" action="{% url 'shop:delete_address' address.id %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-danger btn-sm">Xoa</button>
+              </form>
             </div>
           </div>
         {% empty %}

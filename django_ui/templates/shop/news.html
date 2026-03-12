@@ -1,0 +1,31 @@
+{% extends "shop/base.html" %}
+{% block title %}Tin tuc che Thai Nguyen{% endblock %}
+{% block content %}
+<section class="news-hero">
+  <div class="news-hero-content">
+    <h3>Tin tuc che Thai Nguyen</h3>
+    <p>Tong hop bai viet ve che, cach pha va bi quyet thuong tra.</p>
+  </div>
+</section>
+
+<section class="news-grid">
+  {% for post in posts %}
+    <article class="news-card">
+      <a class="news-thumb" href="{{ post.url }}">
+        <img src="{{ post.image }}" alt="{{ post.title }}">
+      </a>
+      <div class="news-body">
+        <span class="news-date">{{ post.date }}</span>
+        <h5 class="news-title">{{ post.title }}</h5>
+        <p class="news-excerpt">{{ post.excerpt }}</p>
+        <a class="btn btn-outline-success btn-sm" href="{{ post.url }}">Xem bai viet</a>
+      </div>
+    </article>
+  {% empty %}
+    <div class="empty-state">
+      <h5>Chua co bai viet</h5>
+      <p class="mb-0">Vui long them bai viet moi trong du lieu tin tuc.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "shop/base.html" %}
+{% block title %}Thanh toan thanh cong{% endblock %}
+{% block content %}
+<div class="success-page">
+  <div class="success-card">
+    <div class="success-icon">?</div>
+    <h3>Thanh toan thanh cong</h3>
+    {% if order %}
+      <p class="text-muted">Don hang #{{ order.id }} cua ban da duoc ghi nhan.</p>
+    {% else %}
+      <p class="text-muted">Don hang cua ban da duoc ghi nhan.</p>
+    {% endif %}
+    <p class="text-muted">Dang chuyen ve trang chu trong <span id="countdown">3</span> giay.</p>
+    <a href="{% url 'shop:home' %}" class="btn btn-success">Ve trang chu ngay</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (() => {
+    let seconds = 3;
+    const el = document.getElementById("countdown");
+    const tick = () => {
+      seconds -= 1;
+      if (el) el.textContent = seconds;
+      if (seconds <= 0) {
+        window.location.href = "{% url 'shop:home' %}";
+        return;
+      }
+      setTimeout(tick, 1000);
+    };
+    setTimeout(tick, 1000);
+  })();
+</script>
+{% endblock %}

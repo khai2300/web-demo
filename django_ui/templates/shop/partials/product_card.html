@@ -1,33 +1,33 @@
-<article class="col-12 col-md-6 col-xl-4">
-  <div class="card tea-card h-100 shadow-sm border-0">
-    <a href="{% url 'shop:product_detail' product.id %}" class="text-decoration-none">
+<article class="col-12 col-md-6 col-xl-3">
+  <div class="product-card h-100">
+    <a href="{% url 'shop:product_detail' product.id %}" class="product-thumb">
       {% if product.image %}
-        <img src="{{ product.image.url }}" class="card-img-top tea-thumb" alt="{{ product.name }}">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}">
       {% elif product.image_url %}
-        <img src="{{ product.image_url }}" class="card-img-top tea-thumb" alt="{{ product.name }}">
+        <img src="{{ product.image_url }}" alt="{{ product.name }}">
       {% else %}
-        <div class="tea-thumb tea-placeholder">Chua co anh</div>
+        <div class="product-placeholder">Chua co anh</div>
       {% endif %}
+      <span class="product-badge">{{ product.category.name }}</span>
     </a>
-    <div class="card-body d-flex flex-column">
-      <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-        <h5 class="card-title mb-0">{{ product.name }}</h5>
-        <span class="badge rounded-pill text-bg-success">{{ product.category.name }}</span>
+    <div class="product-body">
+      <h5 class="product-title">{{ product.name }}</h5>
+      <p class="product-desc">{{ product.short_description|default:product.description|truncatechars:90 }}</p>
+      <div class="product-meta">
+        {% if product.source_zone %}
+          <span>Nguon: {{ product.source_zone.name }}</span>
+        {% endif %}
+        <span>Kho: {{ product.stock }}</span>
       </div>
-      <p class="small text-muted mb-2">{{ product.short_description|default:product.description|truncatechars:95 }}</p>
-      {% if product.source_zone %}
-        <p class="small mb-2">Nguon: <strong>{{ product.source_zone.name }}</strong> ({{ product.source_zone.province }})</p>
-      {% endif %}
-      <div class="d-flex justify-content-between align-items-center mt-auto pt-2">
-        <p class="tea-price mb-0">{{ product.price|floatformat:0 }} VND</p>
-        <p class="mb-0 small text-muted">Kho: {{ product.stock }}</p>
-      </div>
-      <div class="d-flex gap-2 mt-3">
-        <a href="{% url 'shop:product_detail' product.id %}" class="btn btn-outline-success btn-sm flex-grow-1">Chi tiet</a>
-        <form method="post" action="{% url 'shop:add_to_cart' product.id %}" class="flex-grow-1">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-success btn-sm w-100">Them gio</button>
-        </form>
+      <div class="product-footer">
+        <div class="product-price">{{ product.price|floatformat:0 }} VND</div>
+        <div class="product-actions">
+          <a href="{% url 'shop:product_detail' product.id %}" class="btn btn-outline-success btn-sm">Chi tiet</a>
+          <form method="post" action="{% url 'shop:add_to_cart' product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success btn-sm">Them gio</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>

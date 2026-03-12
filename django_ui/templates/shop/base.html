@@ -13,35 +13,57 @@
 </head>
 <body>
   <div class="tea-bg"></div>
-  <nav class="navbar navbar-expand-lg navbar-dark nav-shell sticky-top">
-    <div class="container">
-      <a class="navbar-brand brand-mark" href="{% url 'shop:home' %}">Che Bup Market</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="mainNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link" href="{% url 'shop:home' %}">San pham</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'shop:cart' %}">Gio hang</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'shop:orders' %}">Don hang</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'shop:account' %}">Dia chi giao hang</a></li>
-          <li class="nav-item"><a class="nav-link" href="{% url 'shop:chat' %}">Chat AI</a></li>
-          {% if request.user.is_staff %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'shop:admin_dashboard' %}">Dashboard</a></li>
-          {% endif %}
-        </ul>
-        <div class="d-flex gap-2">
-          {% if request.user.is_authenticated %}
-            <span class="badge text-bg-light text-dark fw-semibold px-3 py-2">{{ request.user.username }}</span>
-            <a class="btn btn-outline-light btn-sm" href="{% url 'shop:logout' %}">Dang xuat</a>
-          {% else %}
-            <a class="btn btn-outline-light btn-sm" href="{% url 'shop:login' %}">Dang nhap</a>
-            <a class="btn btn-light btn-sm" href="{% url 'shop:register' %}">Dang ky</a>
-          {% endif %}
+  <header class="site-header">
+    <div class="mainbar">
+      <div class="container">
+        <div class="mainbar-grid">
+          <a class="brand-mark brand-main" href="{% url 'shop:home' %}">
+            Che Bup Thai Nguyen
+            <span class="brand-sub">Che thu cong - Tra sach</span>
+          </a>
+          <form class="header-search" action="{% url 'shop:home' %}" method="get">
+            <input type="text" name="q" class="form-control" value="{{ q|default:'' }}" placeholder="Tim san pham, vi du: che dinh, o long...">
+            <button class="btn btn-success" type="submit">Tim kiem</button>
+          </form>
+          <div class="header-actions">
+            <a class="btn btn-outline-success btn-sm" href="{% url 'shop:cart' %}">Gio hang</a>
+            <a class="btn btn-success btn-sm" href="{% url 'shop:checkout' %}">Thanh toan</a>
+            {% if request.user.is_authenticated %}
+              <span class="badge text-bg-light text-dark fw-semibold px-3 py-1">{{ request.user.username }}</span>
+              <a class="btn btn-outline-success btn-sm" href="{% url 'shop:logout' %}">Dang xuat</a>
+            {% else %}
+              <a class="btn btn-outline-success btn-sm" href="{% url 'shop:login' %}">Dang nhap</a>
+              <a class="btn btn-success btn-sm" href="{% url 'shop:register' %}">Dang ky</a>
+            {% endif %}
+            <div class="hotline-pill">
+              <span class="hotline-label">Hotline</span>
+              <strong>0986.xxx.xxx</strong>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </nav>
+
+    <nav class="navbar navbar-expand-lg nav-primary">
+      <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link" href="{% url 'shop:home' %}">Trang chu</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'shop:orders' %}">Don hang</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'shop:account' %}">Dia chi giao hang</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'shop:chat' %}">Chat AI</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'shop:news_list' %}">Bai viet</a></li>
+            {% if request.user.is_staff %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'shop:admin_dashboard' %}">Dashboard</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
 
   <main class="container py-4 page-shell">
     {% if messages %}
@@ -58,49 +80,58 @@
   <footer class="footer-shell mt-5">
     <div class="container py-5">
       <div class="row g-4 footer-top">
-        <div class="col-lg-3">
+        <div class="col-lg-4">
           <div class="footer-logo">
-            <div class="footer-brand">Che Bup</div>
-            <div class="footer-tagline">Market & Trace</div>
+            <div class="footer-brand">Che Bup Thai Nguyen</div>
+            <div class="footer-tagline">Tra sach - Hoi tho tra Viet</div>
           </div>
-          <div class="footer-slogan">Tra tuoi - do tuoi - giao nhanh.</div>
+          <div class="footer-slogan">
+            Van phong 1: SN 316 Duong Phan Dinh Phung, TP Thai Nguyen.
+            Van phong 2: SN 79/1 Duong Bac Kan, TP Thai Nguyen.
+          </div>
+          <div class="footer-slogan">
+            CSSX Che: Xom Nam Hung, Xa Tan Cuong.
+            CSSX DTHT: Vien Khoa Hoc Su Song - DH Nong Lam Thai Nguyen.
+          </div>
+          <div class="footer-slogan">Hotline: 0986.xxx.xxx | Email: support@chebup.vn</div>
         </div>
         <div class="col-6 col-lg-2">
-          <div class="footer-title">Weekly themes</div>
+          <div class="footer-title">Ve chung toi</div>
           <ul class="footer-links">
-            <li><a class="footer-link" href="{% url 'shop:home' %}">San pham noi bat</a></li>
-            <li><a class="footer-link" href="{% url 'shop:cart' %}">Gio hang</a></li>
-            <li><a class="footer-link" href="{% url 'shop:orders' %}">Don hang</a></li>
-          </ul>
-        </div>
-        <div class="col-6 col-lg-2">
-          <div class="footer-title">Services</div>
-          <ul class="footer-links">
-            <li><a class="footer-link" href="{% url 'shop:chat' %}">Chat AI</a></li>
-            <li><span class="footer-text">Truy xuat QR</span></li>
-            <li><span class="footer-text">Giao trong ngay</span></li>
-          </ul>
-        </div>
-        <div class="col-6 col-lg-2">
-          <div class="footer-title">Showcase</div>
-          <ul class="footer-links">
-            <li><a class="footer-link" href="{% url 'shop:account' %}">Dia chi giao</a></li>
-            <li><span class="footer-text">Khu nguon</span></li>
-            <li><span class="footer-text">Xuong che</span></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Trang chu</a></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Gioi thieu</a></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">San pham</a></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Tin tuc</a></li>
           </ul>
         </div>
         <div class="col-6 col-lg-3">
-          <div class="footer-title">About us</div>
+          <div class="footer-title">Chinh sach</div>
           <ul class="footer-links">
-            <li><span class="footer-text">Hotline: 0909 123 456</span></li>
-            <li><span class="footer-text">Email: support@chebup.vn</span></li>
-            <li><span class="footer-text">8:00 - 21:30</span></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Chinh sach chung</a></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Chinh sach van chuyen</a></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Chinh sach thanh toan</a></li>
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Chinh sach bao mat</a></li>
           </ul>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="footer-title">Ho tro</div>
+          <ul class="footer-links">
+            <li><a class="footer-link" href="{% url 'shop:home' %}">Huong dan su dung</a></li>
+            <li><a class="footer-link" href="{% url 'shop:orders' %}">Theo doi don</a></li>
+            <li><a class="footer-link" href="{% url 'shop:chat' %}">Chat tu van</a></li>
+          </ul>
+          <div class="footer-cta mt-3">
+            <div class="footer-title">Hay goi cho toi</div>
+            <form class="footer-form">
+              <input type="text" class="form-control" placeholder="So dien thoai">
+              <button class="btn btn-success btn-sm" type="submit">Yeu cau</button>
+            </form>
+          </div>
         </div>
       </div>
       <div class="footer-divider"></div>
       <div class="footer-bottom">
-        <div class="footer-copy">Copyright 2026 Che Bup. All rights reserved.</div>
+        <div class="footer-copy">© 2026 Che Bup Thai Nguyen. Ban quyen thuoc ve Che Bup Thai Nguyen.</div>
       </div>
     </div>
   </footer>

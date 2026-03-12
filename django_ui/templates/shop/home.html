@@ -1,62 +1,145 @@
 {% extends "shop/base.html" %}
-{% block title %}San pham che bup{% endblock %}
+{% block title %}Che Bup Thai Nguyen{% endblock %}
 {% block content %}
-<section class="hero-spot mb-4">
-  <div class="row g-4 align-items-center">
-    <div class="col-lg-7">
-      <p class="hero-kicker mb-2">Bo suu tap che bup thu cong</p>
-      <h1 class="hero-title mb-3">Huong che bup nguyen vi, thu hoach theo mua</h1>
-      <p class="hero-lead mb-4">
-        Chon che xanh, che shan, che o long va cac dong pha san theo gu uong.
-        Ho tro dat nhanh, giao tan noi va theo doi don theo thoi gian thuc.
+<section class="hero-grid mb-4">
+  <div class="hero-card hero-card--tea">
+    <div class="hero-content">
+      <span class="hero-chip">Che Thai Nguyen</span>
+      <h1>Che Bup Thai Nguyen</h1>
+      <p>
+        San pham che bup sach, thu hoach theo mua, sao thu cong va dong goi hut chan khong.
+        Huong com nong, vi dam va hau vi ngot sau.
       </p>
-      <div class="d-flex flex-wrap gap-2">
-        <span class="badge rounded-pill text-bg-light text-dark px-3 py-2">100% la bup non</span>
-        <span class="badge rounded-pill text-bg-light text-dark px-3 py-2">Dong goi hut chan khong</span>
-        <span class="badge rounded-pill text-bg-light text-dark px-3 py-2">Tu van vi tra theo gu</span>
-      </div>
-    </div>
-    <div class="col-lg-5">
-      <div class="hero-panel p-4">
-        <h5 class="mb-3">Tim nhanh san pham</h5>
-        <form method="get" class="row g-2" id="searchForm">
-          <div class="col-12 position-relative">
-            <input id="searchInput" type="text" class="form-control" name="q" value="{{ q }}" placeholder="Tim theo ten, mo ta...">
-            <div id="suggestBox" class="suggest-box"></div>
-          </div>
-          <div class="col-md-7">
-            <select class="form-select" name="category">
-              <option value="">Tat ca danh muc</option>
-              {% for c in categories %}
-                <option value="{{ c.id }}" {% if c.id|stringformat:'s' == selected_category|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-md-5 d-grid">
-            <button class="btn btn-success" type="submit">Loc san pham</button>
-          </div>
-        </form>
+      <div class="hero-actions">
+        <a class="btn btn-light" href="{% url 'shop:home' %}?q=che">Xem chi tiet</a>
+        <a class="btn btn-outline-light" href="{% url 'shop:home' %}?q=tra">Xem san pham</a>
       </div>
     </div>
   </div>
 </section>
 
-<section class="mb-4">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Danh sach che bup</h3>
-    <small class="text-muted">{{ products|length }} san pham</small>
+<section class="quick-search mb-4">
+  <div class="quick-search-inner">
+    <h5 class="mb-2">Tim nhanh san pham</h5>
+    <form method="get" class="row g-2" id="searchForm">
+      <div class="col-lg-6 position-relative">
+        <input id="searchInput" type="text" class="form-control" name="q" value="{{ q }}" placeholder="Tim theo ten, mo ta...">
+        <div id="suggestBox" class="suggest-box"></div>
+      </div>
+      <div class="col-lg-3">
+        <select class="form-select" name="category">
+          <option value="">Tat ca danh muc</option>
+          {% for c in categories %}
+            <option value="{{ c.id }}" {% if c.id|stringformat:'s' == selected_category|stringformat:'s' %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-lg-3 d-grid">
+        <button class="btn btn-success" type="submit">Loc san pham</button>
+      </div>
+    </form>
   </div>
-  <div class="row g-3">
-    {% for product in products %}
-      {% include "shop/partials/product_card.html" with product=product %}
-    {% empty %}
-      <div class="col-12">
-        <div class="empty-state">
-          <h5>Khong tim thay san pham phu hop</h5>
-          <p class="mb-0">Thu doi tu khoa tim kiem hoac bo loc danh muc.</p>
+</section>
+
+<section class="tea-list-section mb-5">
+  <div class="section-head">
+    <div>
+      <h3>Che Thai Nguyen ngon</h3>
+      <p>Danh sach san pham che bup thu cong dang co san.</p>
+    </div>
+    <a class="btn btn-outline-success btn-sm" href="{% url 'shop:home' %}">Xem tat ca</a>
+  </div>
+  <div class="tea-list">
+    {% for product in products|slice:":12" %}
+      <article class="tea-list-item">
+        <a class="tea-list-thumb" href="{% url 'shop:product_detail' product.id %}">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% elif product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}">
+          {% else %}
+            <div class="tea-list-placeholder">Chua co anh</div>
+          {% endif %}
+        </a>
+        <div class="tea-list-body">
+          <div class="tea-list-head">
+            <h4 class="tea-list-title">{{ product.name }}</h4>
+            <span class="tea-list-tag">{{ product.category.name }}</span>
+          </div>
+          <p class="tea-list-desc">{{ product.short_description|default:product.description|truncatechars:140 }}</p>
+          <div class="tea-list-meta">
+            {% if product.source_zone %}
+              <span>Nguon: {{ product.source_zone.name }}</span>
+            {% endif %}
+            <span>Kho: {{ product.stock }}</span>
+          </div>
+          <div class="tea-list-footer">
+            <div class="tea-list-price">{{ product.price|floatformat:0 }} VND</div>
+            <div class="tea-list-actions">
+              <a class="btn btn-outline-success btn-sm" href="{% url 'shop:product_detail' product.id %}">Chi tiet</a>
+              <form method="post" action="{% url 'shop:add_to_cart' product.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success btn-sm">Them gio</button>
+              </form>
+            </div>
+          </div>
         </div>
+      </article>
+    {% empty %}
+      <div class="empty-state">
+        <h5>Khong tim thay san pham</h5>
+        {% if q or selected_category %}
+          <p class="mb-0">Thu doi tu khoa tim kiem hoac bo loc danh muc.</p>
+        {% else %}
+          <p class="mb-0">Hien chua co san pham nao.</p>
+        {% endif %}
       </div>
     {% endfor %}
+  </div>
+</section>
+
+<section class="feature-grid mb-5">
+  <div class="feature-card">
+    <div class="feature-icon">1</div>
+    <h6>Mien phi van chuyen</h6>
+    <p>Ap dung don hang tu 500.000 VND.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">2</div>
+    <h6>Ho tro 24/7</h6>
+    <p>Tu van vi tra va phan phoi nhanh.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">3</div>
+    <h6>Hoan tien 100%</h6>
+    <p>Doi tra neu san pham khong dung mo ta.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">4</div>
+    <h6>Thanh toan an toan</h6>
+    <p>COD hoac chuyen khoan qua ngan hang.</p>
+  </div>
+</section>
+
+<section class="guide-contact mb-5">
+  <div class="guide-card">
+    <h4>Huong dan su dung</h4>
+    <ul class="list-compact">
+      <li>Nuoc 85-90 do C, pha 3-5 phut.</li>
+      <li>Ty le 5g che / 200ml nuoc.</li>
+      <li>Co the pha 3-4 lan nuoc.</li>
+    </ul>
+    <a class="btn btn-outline-success btn-sm" href="{% url 'shop:home' %}">Xem chi tiet</a>
+  </div>
+  <div class="guide-card">
+    <h4>Thong tin lien he</h4>
+    <ul class="list-compact">
+      <li>Van phong 1: 316 Phan Dinh Phung, Thai Nguyen.</li>
+      <li>Van phong 2: 79/1 Bac Kan, Thai Nguyen.</li>
+      <li>Hotline: 0986.xxx.xxx</li>
+      <li>Email: support@chebup.vn</li>
+    </ul>
+    <a class="btn btn-success btn-sm" href="{% url 'shop:chat' %}">Chat tu van</a>
   </div>
 </section>
 {% endblock %}

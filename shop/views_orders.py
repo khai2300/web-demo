@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlencode
 from io import BytesIO
 
 import qrcode
@@ -7,11 +8,13 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from .models import Address, CartItem, Order, OrderItem, OrderTraceToken
 from .views_utils import (
     PAYMENT_METHOD_COD,
+    PAYMENT_METHOD_BANK_TRANSFER,
     PAYMENT_METHODS,
     PAYMENT_METHOD_VALUES,
     build_bank_transfer_info,
@@ -43,6 +46,8 @@ def checkout(request):
     if request.method == "POST":
         address_id = request.POST.get("address_id")
         payment_method = request.POST.get("payment_method", PAYMENT_METHOD_COD)
+        bank_transfer_name = request.POST.get("bank_transfer_name", "").strip()
+        bank_transfer_phone = request.POST.get("bank_transfer_phone", "").strip()
 
         address = Address.objects.filter(user=request.user, id=address_id).first()
         if address is None:
@@ -51,6 +56,14 @@ def checkout(request):
         if payment_method not in PAYMENT_METHOD_VALUES:
             messages.error(request, "Phuong thuc thanh toan khong hop le.")
             return redirect("shop:checkout")
+        if payment_method == PAYMENT_METHOD_BANK_TRANSFER and (
+            not bank_transfer_name or not bank_transfer_phone
+        ):
+            messages.error(request, "Vui long nhap day du thong tin.")
+            query = {"payment_method": payment_method}
+            if promo_code:
+                query["promo_code"] = promo_code
+            return redirect(f"{reverse('shop:checkout')}?{urlencode(query)}")
 
         for item in cart_items:
             if item.quantity > item.product.stock:
@@ -91,7 +104,8 @@ def checkout(request):
             CartItem.objects.filter(user=request.user).delete()
 
         messages.success(request, f"Dat hang thanh cong. Ma don #{order.id}")
-        return redirect("shop:orders")
+        success_url = reverse("shop:checkout_success")
+        return redirect(f"{success_url}?order_id={order.id}")
 
     return render(
         request,
@@ -219,3 +233,12 @@ def trace_order(request, token):
         "center_lng": center_lng,
     }
     return render(request, "shop/trace_order.html", context)
+
+
+@login_required
+def checkout_success(request):
+    order_id = request.GET.get("order_id", "").strip()
+    order = None
+    if order_id.isdigit():
+        order = Order.objects.filter(id=int(order_id), user=request.user).first()
+    return render(request, "shop/checkout_success.html", {"order": order})

@@ -46,3 +46,21 @@ def set_default_address(request, address_id):
     address.save(update_fields=["is_default"])
     messages.success(request, "Da cap nhat dia chi mac dinh.")
     return redirect("shop:account")
+
+
+@login_required
+@require_POST
+def delete_address(request, address_id):
+    address = get_object_or_404(Address, id=address_id, user=request.user)
+    was_default = address.is_default
+    address.delete()
+
+    if was_default:
+        next_address = Address.objects.filter(user=request.user).order_by("-created_at").first()
+        if next_address:
+            Address.objects.filter(user=request.user).update(is_default=False)
+            next_address.is_default = True
+            next_address.save(update_fields=["is_default"])
+
+    messages.success(request, "Da xoa dia chi giao hang.")
+    return redirect("shop:account")
